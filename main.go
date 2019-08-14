@@ -16,7 +16,6 @@ func main () {
 }
 
 func ReadFile(path string) (lines []string, duplicateLines[]string) {
-
     file := OpenFile(path)
     defer file.Close()
 
@@ -56,7 +55,7 @@ func AnalyzeFile(scanner *bufio.Scanner) (lines []string, duplicateLines[]string
 
 
 func WriteOutputFileWithoutDuplicatesLines(lines []string ){
-    f, err := os.Create("NoDuplicate.txt")
+    f, err := os.Create("FileWithoutDuplicate.txt")
     if err != nil {
         return
     }
@@ -67,7 +66,7 @@ func WriteOutputFileWithoutDuplicatesLines(lines []string ){
 }
 
 func WriteOutputFileWithDuplicateLines(duplicateLines []string) {
-    f, err := os.Create("Duplicate.txt")
+    f, err := os.Create("ListOfDuplicate.txt")
     if err != nil {
         return
     }
