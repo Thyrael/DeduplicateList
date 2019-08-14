@@ -8,18 +8,52 @@ import (
 )
 
 func main () {
-  fmt.Println("Hello, world.")
-
   path := os.Args[1] // Get file path
-  fmt.Println("File to De-Duplicate : " +path)
-
+  fmt.Printf("File to De-Duplicate : %v\n", path)
   lines, duplicateLines := ReadFile(path)
-
   WriteOutputFileWithoutDuplicatesLines(lines)
   WriteOutputFileWithDuplicateLines(duplicateLines)
-
-  fmt.Println("End")
 }
+
+func ReadFile(path string) (lines []string, duplicateLines[]string) {
+
+    file := OpenFile(path)
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+    return AnalyzeFile(scanner)
+}
+
+func OpenFile(path string) (file *os.File) {
+  file, err := os.Open(path)
+  if err != nil {
+      return
+  }
+  return file
+}
+
+func AnalyzeFile(scanner *bufio.Scanner) (lines []string, duplicateLines[]string) {
+  for scanner.Scan() {
+      line := scanner.Text()
+      findDuplicateLine := false
+
+      if len(lines) != 0 {
+          for i := range lines {
+              if strings.Compare(lines[i], line) == 0 {
+                  duplicateLines = append(duplicateLines, line)
+                  findDuplicateLine = true
+                  break
+              }
+          }
+      }
+
+      if !findDuplicateLine {
+          lines = append(lines, line)
+      }
+  }
+  return lines, duplicateLines
+}
+
 
 func WriteOutputFileWithoutDuplicatesLines(lines []string ){
     f, err := os.Create("NoDuplicate.txt")
@@ -31,13 +65,6 @@ func WriteOutputFileWithoutDuplicatesLines(lines []string ){
         WriteOutput(f, lines[i])
     }
 }
-
-func WriteOutput(file *os.File, s string) {
-    dataWriter := bufio.NewWriter(file)
-    _, _ = dataWriter.WriteString(s + "\r\n")
-    defer dataWriter.Flush()
-}
-
 
 func WriteOutputFileWithDuplicateLines(duplicateLines []string) {
     f, err := os.Create("Duplicate.txt")
@@ -53,32 +80,8 @@ func WriteOutputFileWithDuplicateLines(duplicateLines []string) {
     }
 }
 
-
-func ReadFile(path string) (lines []string, duplicateLines[]string) {
-    file, err := os.Open(path)
-    if err != nil {
-        return
-    }
-    defer file.Close()
-
-    scanner := bufio.NewScanner(file)
-    for scanner.Scan() {
-        line := scanner.Text()
-        if len(lines) == 0 {
-            lines = append(lines, line)
-        } else {
-            findDuplicateLine := false
-            for i := range lines {
-                if strings.Compare(lines[i], line) == 0 {
-                    duplicateLines = append(duplicateLines, line)
-                    findDuplicateLine = true
-                    break
-                }
-            }
-            if !findDuplicateLine {
-                lines = append(lines, line)
-            }
-        }
-    }
-    return lines, duplicateLines
+func WriteOutput(file *os.File, s string) {
+    dataWriter := bufio.NewWriter(file)
+    _, _ = dataWriter.WriteString(s + "\r\n")
+    defer dataWriter.Flush()
 }
