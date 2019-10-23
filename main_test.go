@@ -52,3 +52,13 @@ func TestAnalyzeFile(t *testing.T) {
       }
   }
 }
+
+func TestWriteOutput(t *testing.T) {
+  file, err := os.Create("TestWriteOutput.txt")
+  if err != nil {
+    t.Error("Something wrong with file creation")
+  }
+  dataWriter := bufio.NewWriter(file)
+  _, _ = dataWriter.WriteString("test" + "\r\n")
+
+}
